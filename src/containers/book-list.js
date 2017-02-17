@@ -3,6 +3,9 @@
    just that single property (which can be a property, value, etc). */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
+import { selectBook } from '../actions/index';
 
 /* Containers:
     A Container is a React Component which has a direct connection to
@@ -26,7 +29,12 @@ class BookList extends Component {
   renderList() {
     return this.props.books.map((book) => {
       return (
-        <li key={book.title} className="list-group-item">{book.title}</li>
+        <li
+          key={book.title}
+          onClick={() => this.props.selectBook(book)}
+          className="list-group-item">
+          {book.title}
+        </li>
       );
     });
   }
@@ -56,7 +64,23 @@ function mapStateToProps(state) {
   };
 }
 
+// Anything returned from this function will end up as props on
+// the BookList container (eg. this.props.selectBook - or any *keys*
+// used in bindActionCreators).
+function mapDispatchToProps(dispatch) {
+  // Whenever selectBook is called, the result should be passed to all of
+  // our Reducers (that's what bindActionCreators is doing).
+  // It understands that selectBook is an ActionCreator. It then combines
+  // all the Actions (which are just functions which return an object) and -
+  // through the dispatch function (?) - passes the all to all of the Reducers.
+  return bindActionCreators({ selectBook: selectBook }, dispatch);
+}
+
 /* Connect takes a function and a Component and links the two. This is
    what promotes a Component to a Container, and provides the glue between
    React and Redux. */
-export default connect(mapStateToProps)(BookList);
+
+// (Udemy comments): Promote BookList from a component to a container - it
+// needs to know about this new dispatch method, selectBook. Make it
+// available as a prop.
+export default connect(mapStateToProps, mapDispatchToProps)(BookList);
